@@ -1,0 +1,99 @@
+<!-- popup.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 320px;
+      padding: 16px;
+      font-family: system-ui;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .button {
+      padding: 8px 16px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .button:disabled {
+      background: #ccc;
+    }
+    .status {
+      padding: 8px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+    .status.success {
+      background: #e6f4ea;
+      color: #137333;
+    }
+    .status.error {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>青龙面板京东 Cookie 同步助手</h2>
+    
+    <div class="form-group">
+      <label>青龙面板地址</label>
+      <input type="text" id="qlUrl" class="input" placeholder="http://your-qinglong-panel:5700">
+    </div>
+    
+    <div class="form-group">
+      <label>Client ID</label>
+      <input type="text" id="clientId" class="input">
+    </div>
+    
+    <div class="form-group">
+      <label>Client Secret</label>
+      <input type="password" id="clientSecret" class="input">
+    </div>
+    
+    <div class="form-group">
+      <label>环境变量名称</label>
+      <input type="text" id="envName" class="input" placeholder="JD_COOKIE">
+    </div>
+
+    <div class="form-group">
+        <label class="flex items-center space-x-2">
+            <input type="checkbox" id="autoSync" class="form-checkbox">
+            <span>启用自动同步</span>
+        </label>
+    </div>
+
+    <div class="form-group">
+        <label for="syncInterval">同步间隔（分钟）</label>
+        <input type="number" id="syncInterval" class="input" 
+            min="1" max="1440" value="60">
+    </div>
+
+    <div id="lastSyncTime" class="text-sm text-gray-600 mt-2"></div>
+    
+    <button id="saveConfig" class="button">保存配置</button>
+    <button id="syncNow" class="button">立即同步</button>
+    
+    <div id="status" class="status" style="display: none;"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
