@@ -13,27 +13,29 @@ let config = {
     lastSync: null          // 上次同步时间
 };
 
-// 初始化配置和定时器
+// 加载配置
+chrome.storage.local.get(['config'], (result) => {
+    if (result.config) {
+        config = { ...config, ...result.config };
+    }
+});
+
+// 扩展安装时初始化定时器
 chrome.runtime.onInstalled.addListener(() => {
     console.log('扩展已安装/更新');
-    initializeConfigAndAlarm();
+    initializeAlarm();
 });
 
-// Service Worker 启动时初始化
+// Service Worker 启动时初始化定时器
 chrome.runtime.onStartup.addListener(() => {
     console.log('浏览器启动');
-    initializeConfigAndAlarm();
+    initializeAlarm();
 });
 
-// 加载配置并初始化
-async function initializeConfigAndAlarm() {
+// 初始化定时器
+async function initializeAlarm() {
     console.log('初始化扩展')
     try {
-        const result = await chrome.storage.local.get(['config']);
-        if (result.config) {
-            config = { ...config, ...result.config };
-        }
-
         // 如果启用了自动同步，设置定时器
         if (config.autoSync) {
             await setupAlarm();
@@ -258,7 +260,6 @@ async function syncCookie() {
 // 监听来自popup的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'syncNow') {
-        console.log(config)
         syncCookie()
             .then(async (result) => {
                 await handleSyncResult(result);
