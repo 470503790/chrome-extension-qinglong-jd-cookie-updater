@@ -186,56 +186,59 @@ async function updateEnv(token, value) {
         const envs = await searchResponse.json();
 
         let existingEnv = envs.data.find(env => env.name === config.envName);
-        let response;
+        
+        // 如果环境变量不存在，直接报错
+        if (!existingEnv) {
+            throw new Error(`环境变量 ${config.envName} 不存在，请先在青龙面板中手动创建`);
+        }
 
-        if (existingEnv) {
-            // 更新已存在的环境变量
-            response = await fetch(
-                `${config.qlUrl}/open/envs`,
+        // 更新已存在的环境变量
+        const response = await fetch(
+            `${config.qlUrl}/open/envs`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: config.envName,
+                    value: value,
+                    id: existingEnv.id,
+                    remarks: `由Cookie同步助手更新于 ${new Date().toLocaleString()}`
+                })
+            }
+        );
+
+        const updateResult = await response.json();
+        if (updateResult.code === 200) {
+            // 启用该环境变量
+            const enableResponse = await fetch(
+                `${config.qlUrl}/open/envs/enable`,
                 {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        name: config.envName,
-                        value: value,
-                        id: existingEnv.id,
-                        remarks: `由Cookie同步助手更新于 ${new Date().toLocaleString()}`
-                    })
+                    body: JSON.stringify([existingEnv.id])
                 }
             );
-        } else {
-            // 创建新的环境变量
-            response = await fetch(
-                `${config.qlUrl}/open/envs`,
-                {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify([{
-                        name: config.envName,
-                        value: value,
-                        remarks: `由Cookie同步助手创建于 ${new Date().toLocaleString()}`
-                    }])
-                }
-            );
+            
+            const enableResult = await enableResponse.json();
+            if (enableResult.code === 200) {
+                return true;
+            }
+            throw new Error(enableResult.message || '启用环境变量失败');
         }
-
-        const result = await response.json();
-        if (result.code === 200) {
-            return true;
-        }
-        throw new Error(result.message || '更新环境变量失败');
+        throw new Error(updateResult.message || '更新环境变量失败');
     } catch (error) {
-        console.error('更新环境变量失败:', error);
+        console.error('更新/启用环境变量失败:', error);
         throw error;
     }
 }
 
+// ... rest of the code remains the same ...
 // 执行同步
 async function syncCookie() {
     try {
