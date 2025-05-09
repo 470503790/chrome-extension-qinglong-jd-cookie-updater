@@ -7,7 +7,7 @@ let config = {
     clientId: '',
     clientSecret: '',
     envName: 'JD_COOKIE',
-    targetURL: 'https://bean.m.jd.com/bean/signIndex.action',  // 替换为目标网站域名
+    targetURL: 'https://my.m.jd.com/index.html?sceneval=2&sourceType=smb',  // 替换为目标网站域名
     autoSync: true,          // 默认开启自动同步
     syncInterval: 60,        // 同步间隔（分钟）
     lastSync: null          // 上次同步时间
